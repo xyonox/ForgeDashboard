@@ -4,7 +4,19 @@ from nicegui import app, ui
 def get_users_exercises(username: str):
     try:
         user_obj = User.get(User.username == username)
-        return Exercise.select().where(Exercise.user == user_obj)
+        exercises = Exercise.select().where(Exercise.user == user_obj)
+        formatted_exercises = [{"name": exercise.name, "description": exercise.description} for exercise in exercises]
+        return formatted_exercises
+    except Exception as e:
+        print(f"Benutzer nicht gefunden: {e}")
+        return [] # Leere Liste zurückgeben, wenn der User nicht existiert
+
+def get_users_exercises_names(username: str):
+    try:
+        user_obj = User.get(User.username == username)
+        exercises = Exercise.select().where(Exercise.user == user_obj)
+        formatted_exercises = [exercise.name for exercise in exercises]
+        return formatted_exercises
     except Exception as e:
         print(f"Benutzer nicht gefunden: {e}")
         return [] # Leere Liste zurückgeben, wenn der User nicht existiert
