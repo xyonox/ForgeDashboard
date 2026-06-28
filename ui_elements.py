@@ -1,10 +1,11 @@
 from nicegui import ui
 
 def header():
-    ui.query("body").classes("bg-black text-white")
-    with ui.header().classes("bg-green h-19"):
+    ui.query("body").classes("bg-zinc-950 text-white")
+    with ui.header().classes("bg-slate-900 p-5"):
         with ui.row().classes("justify-between w-full"):
             button("Forge", on_click=lambda: ui.navigate.to("/"))
+            ui.label("Letz Track").classes("text-lg")
             button("profile", on_click=lambda: ui.navigate.to("/profile"))
 
 def button(name, on_click=None):
