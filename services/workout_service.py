@@ -1,13 +1,11 @@
-from calendar import day_name
 from sql import *
 from nicegui import app, ui
 
-
-def create_or_update_exercise_weekday(username: str, exercise_id: int, weekday_id: int, workout_position: int,
-                                      sets: int):
+def create_or_update_exercise_weekday(username: str, exercise_name: str, weekday_id: int, workout_position: int,
+                                      sets: str):
     user_obj = User.get(User.username == username)
     weekday_obj = Weekday.get(Weekday.id == weekday_id)
-    exercise_obj = Exercise.get(Exercise.id == exercise_id)
+    exercise_obj = Exercise.get(Exercise.name == exercise_name)
 
     obj, created = ExerciseWeekday.get_or_create(
         user=user_obj,
@@ -22,10 +20,10 @@ def create_or_update_exercise_weekday(username: str, exercise_id: int, weekday_i
         obj.save()
 
 
-def delete_exercise_weekday(username: str, exercise_id: int, weekday_id: int):
+def delete_exercise_weekday(username: str, exercise_name: str, weekday_id: int):
     ExerciseWeekday.delete().where(
         ExerciseWeekday.user == User.get(User.username == username),
-        ExerciseWeekday.exercise_id == exercise_id,
+        ExerciseWeekday.exercise == Exercise.get(Exercise.name == exercise_name),
         ExerciseWeekday.weekday_id == weekday_id
     ).execute()
 
@@ -37,8 +35,8 @@ def create_exercise(username: str, name: str, description: str):
             name=name,
             description=description
         )
-    except:
-        print("Exercise already exists")
+    except Exception as e:
+        print(f"Exercise already exists or error: {e}")
 
 
 def update_exercise(username: str, exercise_id: int, name: str, description: str):
@@ -54,8 +52,8 @@ def update_exercise(username: str, exercise_id: int, name: str, description: str
 def delete_exercise(exercise_name: str):
     try:
         Exercise.delete().where(Exercise.name == exercise_name).execute()
-    except:
-        print("Exercise not found")
+    except Exception as e:
+        print(f"Exercise not found or delete failed: {e}")
 
 
 def get_workout_plan(username: str):
@@ -74,14 +72,14 @@ def get_workout_plan(username: str):
         workout_plan = {day: [] for day in days_names.values()}
 
         for plan in query:
-            day_name = days_names[plan.weekday.day_index]
+            current_day_name = days_names[plan.weekday.day_index]
             exercise_info = {
                 "position": plan.workout_position,
                 "name": plan.exercise.name,
                 "description": plan.exercise.description,
                 "sets": plan.sets
             }
-            workout_plan[day_name].append(exercise_info)
+            workout_plan[current_day_name].append(exercise_info)
 
         return workout_plan
     except Exception as e:
