@@ -46,3 +46,10 @@ def register(username, password):
         return False
     cookie_login(username)
     return login(username, password)
+
+
+def get_user():
+    try:
+        return User.get(User.username == app.storage.user["username"])
+    except:
+        return None
