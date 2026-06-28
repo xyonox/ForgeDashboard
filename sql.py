@@ -20,7 +20,7 @@ class User(Model):
 
 class Exercise(Model):
     user = ForeignKeyField(User, backref='exercises')
-    name = CharField()
+    name = CharField(unique=True)
     description = TextField()
     class Meta: database = get_db()
 

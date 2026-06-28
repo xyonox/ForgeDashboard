@@ -1,4 +1,3 @@
-import sql
 from sql import *
 from nicegui import app, ui
 from argon2 import PasswordHasher, exceptions as argon2_exceptions
