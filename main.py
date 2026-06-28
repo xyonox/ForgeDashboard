@@ -4,6 +4,7 @@ from nicegui import *
 from sql import *
 import pages.main_page as mainpage
 import pages.login_register_pages
+import pages.workout_tracker_page
 
 init_db()
 
