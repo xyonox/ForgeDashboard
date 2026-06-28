@@ -36,8 +36,7 @@ class ExerciseWeekday(Model):
     weekday = ForeignKeyField(Weekday, backref='exercises')
 
     workout_position = IntegerField()
-    sets = IntegerField()
-    repetitions = IntegerField()
+    sets = TextField()
 
     class Meta:
         database = get_db()
