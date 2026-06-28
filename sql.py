@@ -26,6 +26,32 @@ class User(Model):
     class Meta:
         database = get_db()
 
+class Exercise(Model):
+    name = CharField()
+    description = TextField()
+    class Meta: database = get_db()
+
+class Weekday(Model):
+    # Speichert 0 = Montag, 1 = Dienstag etc.
+    day_index = IntegerField(unique=True)
+    class Meta: database = get_db()
+
+# DIE ZWISCHENTABELLE
+class ExerciseWeekday(Model):
+    exercise = ForeignKeyField(Exercise, backref='days')
+    weekday = ForeignKeyField(Weekday, backref='exercises')
+
+    workout_position = IntegerField()
+    sets = IntegerField()
+    repetitions = IntegerField()
+
+    class Meta:
+        database = get_db()
+        # verhindert, dass gleiche workout_position gleichzeitig existieren
+        indexes = (
+            (('weekday', 'workout_position'), True),
+        )
+
 def init_db():
     print("Initializing database")
     db = get_db()
@@ -39,5 +65,5 @@ def init_db():
         print("Tables already exist")
     print("Creating test variables")
     # Bei create wird es versucht immer wieder neu zu erstellen, bei get_or_create nur wenn es nicht existiert
-    TestUser.get_or_create(username="test", password="Nutte")
+    TestUser.get_or_create(username="test", password="Sollte zensiert werden")
 
