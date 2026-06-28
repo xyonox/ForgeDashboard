@@ -1,6 +1,14 @@
 from sql import *
 from nicegui import app, ui
 
+def get_users_exercises(username: str):
+    try:
+        user_obj = User.get(User.username == username)
+        return Exercise.select().where(Exercise.user == user_obj)
+    except Exception as e:
+        print(f"Benutzer nicht gefunden: {e}")
+        return [] # Leere Liste zurückgeben, wenn der User nicht existiert
+
 def create_or_update_exercise_weekday(username: str, exercise_name: str, weekday_id: int, workout_position: int,
                                       sets: str):
     user_obj = User.get(User.username == username)
