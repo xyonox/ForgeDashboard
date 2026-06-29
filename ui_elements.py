@@ -13,3 +13,32 @@ def button(name, on_click=None):
     btn.classes('bg-[#013220] text-white border border-emerald-500 px-4 py-1 rounded shadow-md hover:bg-emerald-900')
     btn.props("color=none")
     return btn
+
+def card(content=None):
+    c = (ui.card()
+            .classes("bg-[#013220] text-white border border-emerald-500 px-4 py-1 rounded shadow-md"))
+
+    return c
+
+def select(
+    options,
+    label="",
+    value=None,
+    with_input=False,
+    on_change=None,
+):
+    s = ui.select(
+        options=options,
+        label=label,
+        value=value,
+        with_input=with_input,
+        on_change=on_change,
+    )
+
+    s.classes("w-64 text-white")
+    s.props(
+        'popup-content-class="text-white bg-[#013220]" '
+        'input-class="text-white"'
+    )
+
+    return s
