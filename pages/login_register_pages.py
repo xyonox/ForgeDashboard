@@ -15,6 +15,7 @@ def login_page():
         password_input = ui.input(password=True, placeholder="Password")
 
         ui.button("Login", on_click=login_submit)
+        ui.link("Register", "/register")
 
 @ui.page("/register")
 def register_page():
@@ -29,3 +30,4 @@ def register_page():
         password_input = ui.input(password=True, placeholder="Password")
 
         ui.button("Register", on_click=register_submit)
+        ui.link("Login", "/login")
