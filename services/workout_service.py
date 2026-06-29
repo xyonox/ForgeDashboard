@@ -21,24 +21,129 @@ def get_users_exercises_names(username: str):
         print(f"Benutzer nicht gefunden: {e}")
         return [] # Leere Liste zurückgeben, wenn der User nicht existiert
 
-def create_or_update_exercise_weekday(username: str, exercise_name: str, weekday_id: int, workout_position: int,
-                                      sets: str):
+def create_or_update_exercise_weekday(
+        username: str,
+        exercise_name: str,
+        weekday_id: int,
+        sets: str,
+        workout_position: int = None):
+
     user_obj = User.get(User.username == username)
-    weekday_obj = Weekday.get(Weekday.id == weekday_id)
+    weekday_obj = Weekday.get_by_id(weekday_id)
     exercise_obj = Exercise.get(Exercise.name == exercise_name)
+
+    if workout_position is None:
+        max_position = (
+            ExerciseWeekday
+            .select(fn.MAX(ExerciseWeekday.workout_position))
+            .where(
+
+                ExerciseWeekday.user == user_obj,
+
+                ExerciseWeekday.weekday == weekday_obj
+
+            )
+            .scalar()
+        )
+
+        workout_position = 1 if max_position is None else max_position + 1
 
     obj, created = ExerciseWeekday.get_or_create(
         user=user_obj,
         weekday=weekday_obj,
-        workout_position=workout_position,
-        defaults={'exercise': exercise_obj, 'sets': sets}
+        exercise=exercise_obj,
+        defaults={
+            "workout_position": workout_position,
+            "sets": sets
+        }
     )
 
     if not created:
+
         obj.sets = sets
-        obj.exercise = exercise_obj
+
         obj.save()
 
+def move_exercise(username: str, weekday_id: int, exercise_name: str, new_position: int):
+
+    user = User.get(User.username == username)
+
+    weekday = Weekday.get_by_id(weekday_id)
+    exercise = Exercise.get(Exercise.name == exercise_name)
+
+    obj = ExerciseWeekday.get(
+        ExerciseWeekday.user == user,
+        ExerciseWeekday.weekday == weekday,
+        ExerciseWeekday.exercise == exercise
+    )
+
+    old_position = obj.workout_position
+    max_position = (
+
+        ExerciseWeekday
+        .select(fn.COUNT(ExerciseWeekday.id))
+        .where(
+            ExerciseWeekday.user == user,
+            ExerciseWeekday.weekday == weekday
+        )
+        .scalar()
+    )
+
+    new_position = max(1, min(new_position, max_position))
+
+    if new_position == old_position:
+        return
+
+    with get_db().atomic():
+        obj.workout_position = -1
+
+        obj.save()
+
+        if new_position < old_position:
+            (
+                ExerciseWeekday.update(
+
+                    workout_position=ExerciseWeekday.workout_position + 1
+
+                )
+                .where(
+                    ExerciseWeekday.user == user,
+                    ExerciseWeekday.weekday == weekday,
+                    ExerciseWeekday.workout_position >= new_position,
+                    ExerciseWeekday.workout_position < old_position
+                )
+                .execute()
+            )
+
+        else:
+
+            (
+
+                ExerciseWeekday.update(
+
+                    workout_position=ExerciseWeekday.workout_position - 1
+
+                )
+
+                .where(
+
+                    ExerciseWeekday.user == user,
+
+                    ExerciseWeekday.weekday == weekday,
+
+                    ExerciseWeekday.workout_position <= new_position,
+
+                    ExerciseWeekday.workout_position > old_position
+
+                )
+
+                .execute()
+
+            )
+
+        obj.workout_position = new_position
+
+        obj.save()
 
 def delete_exercise_weekday(username: str, exercise_name: str, weekday_id: int):
     ExerciseWeekday.delete().where(
