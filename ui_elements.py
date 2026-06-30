@@ -1,6 +1,9 @@
 from nicegui import ui
 
 def header():
+    dark = ui.dark_mode()
+    dark.enable()
+
     ui.query("body").classes("bg-zinc-950 text-white")
     with ui.header().classes("bg-slate-900 p-5"):
         with ui.row().classes("justify-between w-full"):
