@@ -1,3 +1,5 @@
+import datetime
+
 import peewee
 from peewee import *
 
@@ -45,6 +47,19 @@ class ExerciseWeekday(Model):
             (('user' ,'weekday', 'workout_position'), True),
         )
 
+class ExerciseTrack(Model):
+    user = ForeignKeyField(User, backref='workout_tracks')
+    exercise = ForeignKeyField(Exercise, backref='tracks')
+    track_datetime = DateTimeField(default=datetime.datetime.now)
+    track_sets = TextField()
+    track_weights = TextField()
+
+    class Meta:
+        database = get_db()
+        indexes = (
+            (('user' ,'track_datetime'), True),
+        )
+
 
 
 def init_db():
@@ -59,7 +74,8 @@ def init_db():
             User,
             Exercise,
             Weekday,
-            ExerciseWeekday
+            ExerciseWeekday,
+            ExerciseTrack
         ]
         db.create_tables(tables_to_create, safe=True)
         print("Tables created")
