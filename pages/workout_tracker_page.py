@@ -14,16 +14,10 @@ days = {
     }
 
 @ui.refreshable
-def workout_plan_scroll_area():
+def workout_plan_scroll_area(workout_day_select):
 
     user = us.get_user()
     workout_plan = ws.get_workout_plan(user.username)
-
-    workout_day_select = eui.select(
-        options=days,
-        value=0,
-        label="Select Day",
-    )
 
     with ui.scroll_area().classes("h-120 w-screen"):
 
@@ -43,37 +37,42 @@ def workout_plan_scroll_area():
             with ui.grid(columns=5).classes("w-full gap-4"):
 
                 for exercise in exercises:
-                    with eui.card().classes("w-52 h-44"):
-                        ui.label(exercise["name"]).classes("text-lg font-bold")
-                        ui.label(f'Sets: {exercise["sets"]}')
-                        ui.label(f'Position: {exercise["position"]}')
+                    with ui.row().classes("justify-between w-full"):
+                        with eui.card().classes("w-52 h-44"):
+                            ui.label(exercise["name"]).classes("text-lg font-bold")
+                            ui.label(f'Sets: {exercise["sets"]}')
+                            ui.label(f'Position: {exercise["position"]}')
 
-                        with ui.row().classes("justify-between w-full mt-4"):
-                            eui.button(
-                                "⬆",
-                                on_click=lambda ex=exercise: (
-                                    ws.move_exercise(
-                                        user.username,
-                                        workout_day_select.value + 1,
-                                        ex["name"],
-                                        max(1, ex["position"] - 1),
+                            with ui.row().classes("justify-between w-full mt-4"):
+                                eui.button(
+                                    "⬆",
+                                    on_click=lambda ex=exercise: (
+                                        ws.move_exercise(
+                                            user.username,
+                                            workout_day_select.value + 1,
+                                            ex["name"],
+                                            max(1, ex["position"] - 1),
+                                        ),
+                                        workout_plan_scroll_area.refresh(),
                                     ),
-                                    workout_plan_scroll_area.refresh(),
-                                ),
-                            )
+                                )
 
-                            eui.button(
-                                "⬇",
-                                on_click=lambda ex=exercise: (
-                                    ws.move_exercise(
-                                        user.username,
-                                        workout_day_select.value + 1,
-                                        ex["name"],
-                                        ex["position"] + 1,
+                                eui.button(
+                                    "⬇",
+                                    on_click=lambda ex=exercise: (
+                                        ws.move_exercise(
+                                            user.username,
+                                            workout_day_select.value + 1,
+                                            ex["name"],
+                                            ex["position"] + 1,
+                                        ),
+                                        workout_plan_scroll_area.refresh(),
                                     ),
-                                    workout_plan_scroll_area.refresh(),
-                                ),
-                            )
+                                )
+                        with eui.card().classes("w-52 h-44"):
+                            ui.label("Progress").classes("text-lg font-bold")
+                            ui.label("Coming soon...")
+
 
         build_area()
 
@@ -108,7 +107,12 @@ def mainpage():
     eui.header()
     with ui.row().classes("gap-4"):
         with eui.card().classes("w-screen h-140"):
-            workout_plan_scroll_area()
+            workout_day_select = eui.select(
+                options=days,
+                value=0,
+                label="Select Day",
+            )
+            workout_plan_scroll_area(workout_day_select)
 
 
     with ui.row().classes("gap-4"):
