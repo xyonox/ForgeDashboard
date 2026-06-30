@@ -59,10 +59,15 @@ def create_or_update_exercise_weekday(
     )
 
     if not created:
-
         obj.sets = sets
-
         obj.save()
+
+def track_exercise(username, exercise_name, sets, weights):
+    try:
+        ExerciseTrack.create(user=User.get(User.username == username), exercise=Exercise.get(Exercise.name == exercise_name), sets=sets, weights=weights)
+        return True
+    except:
+        return False
 
 def move_exercise(username: str, weekday_id: int, exercise_name: str, new_position: int):
 
