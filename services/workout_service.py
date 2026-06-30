@@ -64,9 +64,10 @@ def create_or_update_exercise_weekday(
 
 def track_exercise(username, exercise_name, sets, weights):
     try:
-        ExerciseTrack.create(user=User.get(User.username == username), exercise=Exercise.get(Exercise.name == exercise_name), sets=sets, weights=weights)
+        ExerciseTrack.create(user=User.get(User.username == username), exercise=Exercise.get(Exercise.name == exercise_name), track_sets=sets, track_weights=weights)
         return True
-    except:
+    except Exception as e:
+        print(f"Error tracking exercise: {e}")
         return False
 
 def move_exercise(username: str, weekday_id: int, exercise_name: str, new_position: int):
